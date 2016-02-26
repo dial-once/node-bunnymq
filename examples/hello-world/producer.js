@@ -1,9 +1,6 @@
-var producer = require('../../index')().producer;
+var producer = require('../../index')({ amqpAttempt: 3 }).producer;
 
 producer.connect()
 .then(function (_channel) {
-  producer.produce('queueName', { message: 'hello world!' })
-  .then(function (response) {
-    console.log(response); // true if message has been sent, else false
-  });
+  producer.produce('queueName', { message: 'hello world!' });
 });
