@@ -1,16 +1,15 @@
 require('./lib/boot/logger');
 
-var defaultConfig = {
-  host: process.env.AMQP_URL || 'amqp://localhost',
-  prefetch: process.env.AMQP_PREFETCH || 1,
-  redeliverTTL: 10
-};
-
+/* jshint maxcomplexity: false */
 module.exports = function(config) {
-  var tmpConfig = defaultConfig;
+  var defaultConfig = {
+    host: process.env.AMQP_URL || 'amqp://localhost',
+    prefetch: process.env.AMQP_PREFETCH || 1,
+    redeliverTTL: 10
+  };
 
   if (config) {
-    tmpConfig = {
+    defaultConfig = {
       host: config.host || config.amqpUrl || defaultConfig.host,
       prefetch: config.prefetch || config.amqpPrefetch || defaultConfig.prefetch,
       redeliverTTL: config.redeliverTTL || config.amqpRedeliverTTL || defaultConfig.redeliverTTL
@@ -18,7 +17,7 @@ module.exports = function(config) {
   }
 
   return {
-    producer: require('./lib/producer')(tmpConfig),
-    consumer: require('./lib/consumer')(tmpConfig)
+    producer: require('./lib/producer')(defaultConfig),
+    consumer: require('./lib/consumer')(defaultConfig)
   };
 };
