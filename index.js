@@ -16,6 +16,8 @@ module.exports = function(config) {
     };
   }
 
+  defaultConfig.prefetch = (typeof defaultConfig.prefetch !== 'number') ? parseInt(defaultConfig.prefetch) : defaultConfig.prefetch;
+
   return {
     producer: require('./lib/producer')(defaultConfig),
     consumer: require('./lib/consumer')(defaultConfig)
