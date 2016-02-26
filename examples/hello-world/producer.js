@@ -1,4 +1,4 @@
-var producer = require('../../index')({ amqpAttempt: 3 }).producer;
+var producer = require('../../index')().producer;
 
 producer.connect()
 .then(function (_channel) {
