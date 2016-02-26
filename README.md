@@ -10,7 +10,7 @@ BunnyMq is a [amqp.node](https://github.com/squaremo/amqp.node) wrapper to ease 
 - Producer
 - RPC
 - Auto connect/reconnect/queue messages
-- Handle errors / requeing
+- Handle errors / requeing with redeliver ttl
 - Messages types caring using AMQP headers for content type
 
 ## Installation
@@ -57,11 +57,15 @@ You can specify a config object in the BunnyMQ main function, properties not set
 
 ```javascript
   var BunnyMq = require('bunnymq')({
-    amqpUrl: 'amqp://localhost', // default
-    amqpPrefetch: 1, // default
-    amqpRequeue: true // default
+    host: 'amqp://localhost', // default
+    prefetch: 1, // default
+    redeliverTTL: 10 // default, a ttl used for requeueing attempt
   });
 ```
+
+
+## Redeliver
+You can specify in the config object a redeliverTTL for the consumer as above, so if in the consume callback an error is thrown, the message is requeued again as much time as setted in the config, the default is 10.
 
 ## Env vars
 
