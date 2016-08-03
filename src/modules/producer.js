@@ -5,18 +5,26 @@ const parsers = require('./message-parsers');
 var amqpRPCQueues = {};
 
 /**
- * Checks if the channel exists
+ * Checks if the channel exists, reopens it if closed by checkChannel check
+ * @param {Object} connection the connection used to recreate the channel if closed
  * @param {Object} channel the channel to check
  * @param {String} queueName name of the queue to check on channel
  * @returns {Promise} rejects if there is no queue
  */
-function checkQueue(channel, queueName) {
+function checkQueue(connection, channel, queueName) {
   return channel
     .checkQueue(queueName)
     .catch((err) => {
       // error means there is no queue
       err.type = 'no_queue';
-      throw err;
+      // re create the channel since checkQueue closes it if no queue found
+      return connection
+        .get()
+        .then((newChannel) => {
+          channel = newChannel;
+          // still pass the error
+          throw err;
+        });
     });
 }
 
@@ -63,7 +71,7 @@ function createRpcQueue(queue) {
     .conn
     .get()
     .then((channel) => {
-      return checkQueue(channel, queue)
+      return checkQueue(this.conn, channel, queue)
         .then(() => channel.assertQueue(resQueue, {durable: true, exclusive: true}))
         .then(consumeQueue(rpcQueue, this.conn, channel, queue).bind(this));
     })
@@ -102,7 +110,7 @@ function maybeAnswer(queue) {
 }
 
 function publishOrSendToQueue(queue, msg, options) {
-  return checkQueue(this.channel, queue)
+  return checkQueue(this.conn, this.channel, queue)
     .then(() => {
       if (!options.routingKey) {
         return this.channel.sendToQueue(queue, msg, options);

@@ -6,7 +6,7 @@ var uuid = require('node-uuid');
 var docker = require('./docker');
 
 var fixtures = {
-  queues: ['test-queue-0', 'test-queue-1', 'test-queue-2', 'test-queue-3'],
+  queues: ['test-queue-0', 'test-queue-1', 'test-queue-2', 'test-queue-3', 'test-queue-4'],
   routingKey: 'queue-routing-key'
 };
 
@@ -22,7 +22,7 @@ describe('producer/consumer', function () {
     return docker.stop();
   });
 
-  describe('msg delevering', function () {
+  describe('msg delivering', function () {
     before(() => {
       return consumer.consume(fixtures.queues[0], function () {
         letters--;
@@ -33,28 +33,28 @@ describe('producer/consumer', function () {
       });
     });
 
-    it('should be able to consume message sended by producer to queue [test-queue-0]', function () {
+    it('should be able to consume message sent by producer to queue [test-queue-0]', function () {
       letters++;
       return producer.produce(fixtures.queues[0], {msg: uuid.v4()})
         .then(() => utils.timeoutPromise(300))
         .then(() => assert.equal(letters, 0));
     });
 
-    it('should be able to consume message sended by producer to queue [test-queue-0] (no message)', function () {
+    it('should be able to consume message sent by producer to queue [test-queue-0] (no message)', function () {
       letters++;
       return producer.produce(fixtures.queues[0])
         .then(() => utils.timeoutPromise(300))
         .then(() => assert.equal(letters, 0));
     });
 
-    it('should be able to consume message sended by producer to queue [test-queue-0] (null message)', function () {
+    it('should be able to consume message sent by producer to queue [test-queue-0] (null message)', function () {
       letters++;
       return producer.produce(fixtures.queues[0], null)
         .then(() => utils.timeoutPromise(300))
         .then(() => assert.equal(letters, 0));
     });
 
-    it('should not be able to consume message sended by producer to queue [test-queue-1]', function () {
+    it('should not be able to consume message sent by producer to queue [test-queue-1]', function () {
       letters++;
       return producer.produce(fixtures.queues[1], null)
         .then(() => utils.timeoutPromise(300))
@@ -115,7 +115,17 @@ describe('producer/consumer', function () {
             assert(err.message.indexOf('NOT_FOUND') > -1);
             assert(err.message.indexOf('404') > -1);
             assert(err.message.indexOf(fakeQueue) > -1);
-            done();
+
+            // check if everything is working after the no name queue
+            return consumer.consume(fixtures.queues[4], (_msg) =>  assert(_msg))
+              .then(() => {
+                return producer.produce(fixtures.queues[4], {msg: Date.now()}, {rpc: true});
+              })
+              .then(() => {
+                done();
+              })
+              .catch(done);
+
           } catch (e) {
             done(e);
           }
@@ -143,7 +153,7 @@ describe('producer/consumer', function () {
   });
 
   describe('routing keys', function () {
-    it('should be able to send a message to a rounting key exchange', function () {
+    it('should be able to send a message to a routing key exchange', function () {
       return consumer.consume(fixtures.routingKey, function (message) {
           assert.equal(message.content, 'ok');
         })
