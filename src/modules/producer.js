@@ -102,14 +102,11 @@ function maybeAnswer(queue) {
 }
 
 function publishOrSendToQueue(queue, msg, options) {
-  return checkQueue(this.channel, queue)
-    .then(() => {
-      if (!options.routingKey) {
-        return this.channel.sendToQueue(queue, msg, options);
-      } else {
-        return this.channel.publish(queue, options.routingKey, msg, options);
-      }
-    });
+  if (!options.routingKey) {
+    return this.channel.sendToQueue(queue, msg, options);
+  } else {
+    return this.channel.publish(queue, options.routingKey, msg, options);
+  }
 }
 
 /**

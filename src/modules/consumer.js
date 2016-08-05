@@ -24,6 +24,14 @@ function checkRpc (msg, queue) {
   };
 }
 
+function bindRoutingKeys (keys, channel, queue) {
+  if (typeof keys === 'object' && keys.length) {
+    keys.forEach(function(key) {
+      channel.bindQueue(queue, 'amq.direct', key);
+    });
+  }
+}
+
 /**
  * Create a durable queue on RabbitMQ and consumes messages from it - executing a callback function.
  * Automaticaly answers with the callback response (can be a Promise)
@@ -55,9 +63,12 @@ function consume (queue, options, callback) {
     return this.channel.assertQueue(suffixedQueue, options)
     .then((_queue) => {
 
+      bindRoutingKeys(options.routingKeys, this.channel, _queue.queue);
+
       this.conn.config.transport.info('bmq:consumer', 'init', _queue.queue);
 
       this.channel.consume(_queue.queue, (msg) => {
+
         this.conn.config.transport.info('bmq:consumer', '[' + _queue.queue + '] < ' + msg.content.toString());
 
         //main answer management chaining

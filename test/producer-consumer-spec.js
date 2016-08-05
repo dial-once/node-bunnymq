@@ -102,54 +102,20 @@ describe('producer/consumer', function () {
     });
   });
 
-  describe('producer/no queue', function () {
-    it('should reject for rpc channel in case the queue does not exists', function (done) {
-      var fakeQueue = 'fake:queue:name';
-      producer.produce(fakeQueue, {msg: Date.now()}, {rpc: true})
-        .then(function () {
-          done(new Error('it should reject'));
-        })
-        .catch(function (err) {
-          try {
-            assert(err instanceof Error);
-            assert(err.message.indexOf('NOT_FOUND') > -1);
-            assert(err.message.indexOf('404') > -1);
-            assert(err.message.indexOf(fakeQueue) > -1);
-            done();
-          } catch (e) {
-            done(e);
-          }
-        });
-    });
-
-    it('should reject for non rpc channel in case the queue does not exists', function (done) {
-      var fakeQueue = 'fake:queue:name';
-      producer.produce(fakeQueue, {msg: Date.now()}, {rpc: false})
-        .then(function () {
-          done(new Error('it should reject'));
-        })
-        .catch(function (err) {
-          try {
-            assert(err instanceof Error);
-            assert(err.message.indexOf('NOT_FOUND') > -1);
-            assert(err.message.indexOf('404') > -1);
-            assert(err.message.indexOf(fakeQueue) > -1);
-            done();
-          } catch (e) {
-            done(e);
-          }
-        });
-    });
-  });
-
   describe('routing keys', function () {
-    it('should be able to send a message to a rounting key exchange', function () {
-      return consumer.consume(fixtures.routingKey, function (message) {
+    it('should be able to send a message to a routing key exchange', function (done) {
+      consumer.consume('', { routingKeys: ['route'] }, function (message) {
+        try {
           assert.equal(message.content, 'ok');
-        })
-        .then(() => {
-          return producer.produce(fixtures.routingKey, {content: 'ok'}, {routingKey: 'route'});
-        });
+          done();
+        } catch(e) {
+          done(e);
+        }
+      })
+      .then(() => {
+        return producer.produce('amq.direct', {content: 'ok'}, { routingKey: 'route' });
+      })
+      .catch(done);
     });
   });
 });
