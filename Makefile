@@ -4,6 +4,7 @@ run:
 deps:
 	npm install -g jshint mocha istanbul
 	npm i
+	docker pull rabbitmq:3.6
 lint:
 	jshint .
 test:
