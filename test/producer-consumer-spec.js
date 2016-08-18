@@ -121,4 +121,21 @@ describe('producer/consumer', function() {
         });
     });
   });
+
+  describe('data types', function() {
+    it('should not convert string numbers to number', function(done) {
+      const queue = uuid.v4();
+      consumer.consume(queue, function(msg) {
+        try {
+          assert.equal(typeof msg.msg, 'string');
+          done();
+        } catch(e) {
+          done(e);
+        }
+      })
+      .then(function() {
+        return producer.produce(queue, { msg: '3654' });
+      });
+    });
+  });
 });
