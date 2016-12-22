@@ -64,7 +64,7 @@ describe('config', () => {
 
     it('should be able to merge config', () => {
       const conf = { host: 'amqp://localhost' };
-      assert.equal(main(conf).producer.conn.config.host, 'amqp://localhost');
+      assert.equal(main(conf).connection.config.host, 'amqp://localhost');
     });
 
     it('should generate an uuid as hostname if no env for HOSTNAME/USER', () => {
@@ -72,22 +72,22 @@ describe('config', () => {
       process.env.USER = '';
 
       const conf = { host: 'amqp://localhost' };
-      assert.equal(main(conf).producer.conn.config.hostname.length, uuid.v4().length);
+      assert.equal(main(conf).connection.config.hostname.length, uuid.v4().length);
     });
 
     it('should ensure prefetch is in an integer format', () => {
       const conf = { host: 'amqp://localhost', prefetch: '3' };
-      assert.equal(main(conf).producer.conn.config.prefetch, 3);
+      assert.equal(main(conf).connection.config.prefetch, 3);
     });
 
     it('should set unlimited prefetch if prefetch is an invalid value', () => {
       const conf = { host: 'amqp://localhost', prefetch: '' };
-      assert.equal(main(conf).producer.conn.config.prefetch, 0);
+      assert.equal(main(conf).connection.config.prefetch, 0);
     });
 
     it('should use provided prefetch', () => {
       const conf = { host: 'amqp://localhost', prefetch: 1 };
-      assert.equal(main(conf).producer.conn.config.prefetch, 1);
+      assert.equal(main(conf).connection.config.prefetch, 1);
     });
   });
 });

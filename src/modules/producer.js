@@ -12,16 +12,17 @@ const ERRORS = {
 class Producer {
   constructor(connection) {
     this.amqpRPCQueues = {};
-    this._conn = connection;
+    this._connection = connection;
     this.channel = null;
   }
 
-  get conn() {
-    return this._conn;
+  get connection() {
+    return this._connection;
   }
 
-  set conn(value) {
-    this._conn = value;
+  set connection(value) {
+    this._connection = value;
+    this.channel = null;
   }
 
   /**
@@ -33,16 +34,15 @@ class Producer {
     const rpcQueue = this.amqpRPCQueues[queue];
 
     return (msg) => {
-      // check the correlation ID sent by the initial message using RPC
-      const corrId = msg.properties.correlationId;
-
       try {
+        // check the correlation ID sent by the initial message using RPC
+        const corrId = msg.properties.correlationId;
         // if we found one, we execute the callback and delete it because it will never be received again anyway
         rpcQueue[corrId].resolve(parsers.in(msg));
-        this._conn.config.transport.info('bmq:producer', `[${queue}] < answer`);
+        this._connection.config.transport.info('bmq:producer', `[${queue}] < answer`);
         delete rpcQueue[corrId];
       } catch (e) {
-        this._conn.config.transport.error(new Error(
+        this._connection.config.transport.error(new Error(
           `Receiving RPC message from previous session: callback no more in memory. ${queue}`
         ));
       }
@@ -55,9 +55,7 @@ class Producer {
    * @return {Promise}       Resolves when answer response queue is ready to receive messages
    */
   createRpcQueue(queue) {
-    if (!this.amqpRPCQueues[queue]) {
-      this.amqpRPCQueues[queue] = {};
-    }
+    this.amqpRPCQueues[queue] = this.amqpRPCQueues[queue] || {};
 
     const rpcQueue = this.amqpRPCQueues[queue];
     if (rpcQueue.queue) return Promise.resolve(rpcQueue.queue);
@@ -65,14 +63,14 @@ class Producer {
     // we create the callback queue using base queue name + appending config hostname and :res for clarity
     // ie. if hostname is gateway-http and queue is service-oauth, response queue will be service-oauth:gateway-http:res
     // it is important to have different hostname or no hostname on each module sending message or there will be conflicts
-    const resQueue = `${queue}:${this._conn.config.hostname}:res`;
-    rpcQueue.queue = this._conn.get().then(channel =>
+    const resQueue = `${queue}:${this._connection.config.hostname}:res`;
+    rpcQueue.queue = this._connection.get().then(channel =>
       channel.assertQueue(resQueue, { durable: true, exclusive: true })
         .then((q) => {
           rpcQueue.queue = q.queue;
 
           // if channel is closed, we want to make sure we cleanup the queue so future calls will recreate it
-          this._conn.addListener('close', () => { delete rpcQueue.queue; this.createRpcQueue(queue); });
+          this._connection.addListener('close', () => { delete rpcQueue.queue; this.createRpcQueue(queue); });
 
           return channel.consume(q.queue, this.maybeAnswer(queue), { noAck: true });
         })
@@ -80,7 +78,7 @@ class Producer {
       )
       .catch(() => {
         delete rpcQueue.queue;
-        return utils.timeoutPromise(this._conn.config.timeout).then(() =>
+        return utils.timeoutPromise(this._connection.config.timeout).then(() =>
           this.createRpcQueue(queue)
         );
       });
@@ -103,12 +101,12 @@ class Producer {
    * @return {void}         Nothing
    */
   prepareTimeoutRpc(queue, corrId, time) {
-    const self = this;
+    const producer = this;
     setTimeout(() => {
-      const rpcCallback = self.amqpRPCQueues[queue][corrId];
+      const rpcCallback = producer.amqpRPCQueues[queue][corrId];
       if (rpcCallback) {
         rpcCallback.reject(new Error(ERRORS.TIMEOUT));
-        delete self.amqpRPCQueues[queue][corrId];
+        delete producer.amqpRPCQueues[queue][corrId];
       }
     }, time);
   }
@@ -161,24 +159,24 @@ class Producer {
     // default options are persistent and durable because we do not want to miss any outgoing message
     // unless user specify it
     options = Object.assign({ persistent: true, durable: true }, options);
-    return this._conn.get()
+    return this._connection.get()
     .then((channel) => {
       this.channel = channel;
 
       // undefined can't be serialized/buffered :p
       if (!msg) msg = null;
 
-      this._conn.config.transport.info('bmq:producer', `[${queue}] > `, msg);
+      this._connection.config.transport.info('bmq:producer', `[${queue}] > `, msg);
 
       return this.checkRpc(queue, parsers.out(msg, options), options);
     })
     .catch((err) => {
-      if ([ERRORS.TIMEOUT, ERRORS.BUFFER_FULL].indexOf(err.message) !== -1) {
+      if ([ERRORS.TIMEOUT, ERRORS.BUFFER_FULL].includes(err.message)) {
         throw err;
       }
       // add timeout between retries because we don't want to overflow the CPU
-      this._conn.config.transport.error('bmq:producer', err);
-      return utils.timeoutPromise(this._conn.config.timeout)
+      this._connection.config.transport.error('bmq:producer', err);
+      return utils.timeoutPromise(this._connection.config.timeout)
       .then(() => this.produce(queue, msg, options));
     });
   }
@@ -188,13 +186,13 @@ let instance;
 /* eslint no-unused-expressions: "off" */
 /* eslint no-sequences: "off" */
 /* eslint arrow-body-style: "off" */
-module.exports = (conn) => {
-  assert(instance || conn, 'Producer can not be created because connection does not exist');
+module.exports = (connection) => {
+  assert(instance || connection, 'Producer can not be created because connection does not exist');
 
   if (!instance) {
-    instance = new Producer(conn);
+    instance = new Producer(connection);
   } else {
-    instance.conn = conn;
+    instance.connection = connection;
   }
   return instance;
 };
