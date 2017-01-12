@@ -1,4 +1,4 @@
-const consumer = require('../../src/index')().consumer;
+const consumer = require('../../lib/index')().consumer;
 const { logger } = require('@dialonce/boot')();
 
 /* eslint no-param-reassign: "off" */

@@ -23,7 +23,7 @@ describe('config', () => {
   });
 
   describe('retrocompat', () => {
-    const retrocompat = require('../src/modules/retrocompat-config');
+    const retrocompat = require('../lib/modules/retrocompat-config');
 
     it('should set config as empty array if no config present', () => {
       const conf = retrocompat();
@@ -61,7 +61,7 @@ describe('config', () => {
   });
 
   describe('entry point', () => {
-    const main = require('../src/index');
+    const main = require('../lib/index');
 
     it('should be able to merge config', () => {
       const conf = { host: 'amqp://localhost' };

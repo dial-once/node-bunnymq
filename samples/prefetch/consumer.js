@@ -1,4 +1,4 @@
-const consumer = require('../../src/index')().consumer;
+const consumer = require('../../lib/index')().consumer;
 
 let i = 0;
 let interval;

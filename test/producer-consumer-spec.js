@@ -1,7 +1,7 @@
 const assert = require('assert');
-const producer = require('../src/index')().producer;
-const consumer = require('../src/index')().consumer;
-const utils = require('../src/modules/utils');
+const producer = require('../lib/index')().producer;
+const consumer = require('../lib/index')().consumer;
+const utils = require('../lib/modules/utils');
 const uuid = require('node-uuid');
 const docker = require('./docker');
 

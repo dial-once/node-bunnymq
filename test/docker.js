@@ -1,5 +1,5 @@
 const exec = require('child_process').exec;
-const utils = require('../src/modules/utils');
+const utils = require('../lib/modules/utils');
 
 exec('docker rm rabbitmq-bunnymq');
 

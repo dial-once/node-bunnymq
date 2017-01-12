@@ -1,4 +1,4 @@
-const producer = require('../../src/index')().producer;
+const producer = require('../../lib/index')().producer;
 
 let i = 0;
 let interval;

@@ -1,9 +1,9 @@
 const assert = require('assert');
-const producer = require('../src/index')().producer;
-const consumer = require('../src/index')().consumer;
+const producer = require('../lib/index')().producer;
+const consumer = require('../lib/index')().consumer;
 const uuid = require('node-uuid');
 const docker = require('./docker');
-const utils = require('../src/modules/utils');
+const utils = require('../lib/modules/utils');
 
 const fixtures = {
   queues: ['rpc-queue-0', 'rpc-queue-1', 'rpc-queue-2', 'rpc-queue-3']

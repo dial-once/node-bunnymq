@@ -1,6 +1,6 @@
 .PHONY: test
 run:
-	node src/index.js
+	node lib/index.js
 deps:
 	docker pull rabbitmq:3.6
 	npm install -g mocha istanbul
@@ -28,5 +28,3 @@ ifeq ($(CIRCLE_BRANCH),develop)
 	@sonar-runner-2.4/bin/sonar-runner -e -Dsonar.analysis.mode=publish -Dsonar.host.url=$(SONAR_HOST_URL) -Dsonar.login=$(SONAR_LOGIN) -Dsonar.password=$(SONAR_PASS)
 endif
 	rm -rf sonar-runner-2.4 sonar-runner-dist-2.4.zip
-
-

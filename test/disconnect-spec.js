@@ -1,7 +1,7 @@
 const docker = require('./docker');
 const assert = require('assert');
-const { producer, consumer } = require('../src/index')();
-const utils = require('../src/modules/utils');
+const { producer, consumer } = require('../lib/index')();
+const utils = require('../lib/modules/utils');
 
 /* eslint func-names: "off" */
 /* eslint prefer-arrow-callback: "off" */

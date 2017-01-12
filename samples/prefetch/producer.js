@@ -1,4 +1,4 @@
-const producer = require('../../src/index')().producer;
+const producer = require('../../lib/index')().producer;
 const { logger } = require('@dialonce/boot')();
 
 let i = 0;

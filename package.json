@@ -11,9 +11,9 @@
     "publish",
     "subscribe"
   ],
-  "main": "src/index.js",
+  "main": "lib/index.js",
   "scripts": {
-    "doc": "jsdoc -d ./docs --readme README.md --package package.json --template node_modules/minami src/*",
+    "doc": "jsdoc -d ./docs --readme README.md --package package.json --template node_modules/minami lib/*",
     "test": "make test"
   },
   "repository": {
