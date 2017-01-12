@@ -4,7 +4,7 @@ const packageVersion = require('../../package.json').version;
 
 class Connection {
   constructor(config) {
-    this._config = config;
+    this.bmqConfig = config;
     this.connections = {};
     this.startedAt = new Date().toISOString();
   }
@@ -14,8 +14,8 @@ class Connection {
    * @return {Promise} A promise that resolve with an amqp.node connection object
   */
   getConnection() {
-    const url = this._config.host;
-    const hostname = this._config.hostname;
+    const url = this.bmqConfig.host;
+    const hostname = this.bmqConfig.hostname;
     let connection = this.connections[url];
 
     // cache handling, if connection already opened, return it
@@ -39,7 +39,7 @@ class Connection {
       conn.on('close', () => {
         delete connection.conn;
       });
-      conn.on('error', this._config.transport.error);
+      conn.on('error', this.bmqConfig.transport.error);
       connection.conn = conn;
       return conn;
     })
@@ -56,8 +56,8 @@ class Connection {
    * @return {Promise} A promise that resolve with an amqp.node channel object
   */
   getChannel() {
-    const url = this._config.host;
-    const prefetch = this._config.prefetch;
+    const url = this.bmqConfig.host;
+    const prefetch = this.bmqConfig.prefetch;
     const connection = this.connections[url];
 
     // cache handling, if channel already opened, return it
@@ -71,7 +71,7 @@ class Connection {
 
         // on error we remove the channel so the next call will recreate it (auto-reconnect are handled by connection users)
         channel.on('close', () => { delete connection.chann; });
-        channel.on('error', this._config.transport.error);
+        channel.on('error', this.bmqConfig.transport.error);
 
         connection.chann = channel;
         return channel;
@@ -100,11 +100,11 @@ class Connection {
   }
 
   get config() {
-    return this._config;
+    return this.bmqConfig;
   }
 
   set config(value) {
-    this._config = value;
+    this.bmqConfig = value;
   }
 }
 
