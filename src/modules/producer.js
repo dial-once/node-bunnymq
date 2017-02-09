@@ -22,6 +22,7 @@ class Producer {
 
   set connection(value) {
     this._connection = value;
+    this.channel = null;
   }
 
   /**

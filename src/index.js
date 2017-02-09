@@ -7,19 +7,16 @@ require('@dialonce/boot')({
   LOGS_TOKEN: process.env.LOGS_TOKEN,
   BUGS_TOKEN: process.env.BUGS_TOKEN
 });
-
 require('events').EventEmitter.prototype._maxListeners = process.env.MAX_EMITTERS || 20;
 
-const hostnameFallback = uuid.v4();
-
-/* eslint no-param-reassign: "off" */
 /* eslint global-require: "off" */
 module.exports = (config) => {
+  let configuration = Object.assign({}, config);
   // we want to keep retrocompatibility with older configuration format for a while (until 3.0.0)
   // everything in here is deprecated
-  config = retrocompat(config);
-
-  config = Object.assign({
+  configuration = retrocompat(configuration);
+  const hostnameFallback = uuid.v4();
+  configuration = Object.assign({
     host: 'amqp://localhost',
     // number of fetched messages, at once
     prefetch: 5,
@@ -32,11 +29,8 @@ module.exports = (config) => {
     hostname: process.env.HOSTNAME || process.env.USER || hostnameFallback,
     // the transport to use to debug. if provided, bunnymq will show some logs
     transport: utils.emptyLogger
-  }, config);
+  }, configuration);
 
-  config.prefetch = parseInt(config.prefetch, 10) || 0;
-  return {
-    producer: require('./modules/producer')(connection(config)),
-    consumer: require('./modules/consumer')(connection(config))
-  };
+  configuration.prefetch = parseInt(configuration.prefetch, 10) || 0;
+  return require('./modules/bunnymq')(connection(configuration));
 };
