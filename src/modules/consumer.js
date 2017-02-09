@@ -14,7 +14,6 @@ class Consumer {
 
   set connection(value) {
     this._connection = value;
-    this.channel = null;
   }
 
   /**

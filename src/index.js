@@ -7,7 +7,6 @@ require('@dialonce/boot')({
   LOGS_TOKEN: process.env.LOGS_TOKEN,
   BUGS_TOKEN: process.env.BUGS_TOKEN
 });
-
 require('events').EventEmitter.prototype._maxListeners = process.env.MAX_EMITTERS || 20;
 
 /* eslint global-require: "off" */
@@ -17,7 +16,6 @@ module.exports = (config) => {
   // everything in here is deprecated
   configuration = retrocompat(configuration);
   const hostnameFallback = uuid.v4();
-
   configuration = Object.assign({
     host: 'amqp://localhost',
     // number of fetched messages, at once
