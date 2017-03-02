@@ -100,30 +100,35 @@ describe('producer/consumer', function () {
   });
 
   describe('routing keys', () => {
-    it('should be able to send a message to a rounting key exchange', () =>
+    it('should be able to send a message to a rounting key exchange', (done) => {
       consumer.consume(fixtures.routingKey, (message) => {
         assert.equal(message.content, 'ok');
       })
-      .then(() =>
-        producer.produce(fixtures.rountingKey, { content: 'ok' }, { routingKey: 'route' })
-      )
-    );
+      .then(() => {
+        producer.produce(fixtures.rountingKey, { content: 'ok' }, { routingKey: 'route' });
+        done();
+      });
+    });
   });
 
   describe('rpc timeouts', () => {
+    before(() => {
+      consumer.consume('non-existing-queue', () => Promise(resolve => setTimeout(resolve, 20000)));
+    });
+
     it('should reject on given timeout, if no answer received', () =>
       producer.produce('non-existing-queue', { msg: 'ok' }, { rpc: true, timeout: 1000 })
-        .catch((e) => {
-          assert.equal(e.message, 'Timeout reached');
-        })
+      .catch((e) => {
+        assert.equal(e.message, 'Timeout reached');
+      })
     );
 
     it('should reject on default timeout, if no answer received', () => {
       producer._connection._config.rpcTimeout = 1000;
       producer.produce('non-existing-queue', { msg: 'ok' }, { rpc: true })
-        .catch((e) => {
-          assert.equal(e.message, 'Timeout reached');
-        });
+      .catch((e) => {
+        assert.equal(e.message, 'Timeout reached');
+      });
     });
   });
 });

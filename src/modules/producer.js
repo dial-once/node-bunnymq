@@ -6,7 +6,8 @@ const assert = require('assert');
 
 const ERRORS = {
   TIMEOUT: 'Timeout reached',
-  BUFFER_FULL: 'Buffer is full'
+  BUFFER_FULL: 'Buffer is full',
+  QUEUE_NOT_EXIST: 'Using non-existent queue'
 };
 
 class Producer {
@@ -170,12 +171,16 @@ class Producer {
       if (!msg) msg = null;
 
       this._connection.config.transport.info('bmq:producer', `[${queue}] > `, msg);
-
-      return this.checkRpc(queue, parsers.out(msg, options), options);
+      return this.channel.checkQueue(queue).then(() => {
+        return this.checkRpc(queue, parsers.out(msg, options), options);
+      });
     })
     .catch((err) => {
-      if ([ERRORS.TIMEOUT, ERRORS.BUFFER_FULL].includes(err.message)) {
+      if ([ERRORS.TIMEOUT, ERRORS.BUFFER_FULL]
+        .includes(err.message)) {
         throw err;
+      } else if (err.message.indexOf('404 (NOT-FOUND)') !== -1) {
+        throw new Error(ERRORS.QUEUE_NOT_EXIST);
       }
       // add timeout between retries because we don't want to overflow the CPU
       this._connection.config.transport.error('bmq:producer', err);

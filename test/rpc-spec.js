@@ -72,4 +72,12 @@ describe('Producer/Consumer RPC messaging:', function () {
       assert(response === null, 'Got a response !== null');
     })
   );
+
+  it('should reject on non existing queue/exchange', (done) => {
+    producer.produce('bli:bla', { msg: Date.now() }, { rpc: false, routingKey: 'my-routing-key' })
+    .catch((err) => {
+      assert.equal(err.message, 'Using non-existent queue');
+      done();
+    });
+  });
 });
