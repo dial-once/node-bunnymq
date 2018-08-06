@@ -1,0 +1,43 @@
+version: '3'
+
+services:
+  rabbitmq_server:
+    image: rabbitmq:3.6-management-alpine
+    ports:
+      - 15672:15672
+      - 5672:5672
+
+  consumer_service:
+    build:
+      context: ../../
+      dockerfile: ./examples/stress-test/consumer/Dockerfile
+    environment:
+      - AMQP_URL=amqp://rabbitmq_server
+      - AMQP_DEBUG=true
+      - AMQP_TIMEOUT=1000
+      - AMQP_POOL_SIZE=5
+      - AMQP_PREFETCH=100
+      - DEBUG=*
+    links:
+      - rabbitmq_server
+    depends_on:
+      - rabbitmq_server
+
+  producer_service:
+    build:
+      context: ../../
+      dockerfile: ./examples/stress-test/producer/Dockerfile
+    environment:
+      - AMQP_URL=amqp://rabbitmq_server
+      - AMQP_DEBUG=true
+      - AMQP_TIMEOUT=1000
+      - AMQP_POOL_SIZE=5000
+      - AMQP_RPC_TIMEOUT=15000
+      - LOOP_INTERVAL=1
+      - MAX_MESSAGES=1
+      - DEBUG=*
+    links:
+      - rabbitmq_server
+    depends_on:
+      - rabbitmq_server
+      - consumer_service
