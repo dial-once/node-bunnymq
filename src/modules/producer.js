@@ -8,6 +8,7 @@ const ERRORS = {
   BUFFER_FULL: 'Buffer is full'
 };
 
+const bmqProducer = 'bmq:producer';
 class Producer {
   constructor(connection) {
     this.amqpRPCQueues = {};
@@ -37,7 +38,7 @@ class Producer {
         const corrId = msg.properties.correlationId;
         // if we found one, we execute the callback and delete it because it will never be received again anyway
         rpcQueue[corrId].resolve(parsers.in(msg));
-        this._connection.config.transport.info('bmq:producer', `[${queue}] < answer`);
+        this._connection.config.transport.info(bmqProducer, `[${queue}] < answer`);
         delete rpcQueue[corrId];
       } catch (e) {
         this._connection.config.transport.error(new Error(
