@@ -1,12 +1,12 @@
 /* eslint no-console: off */
-const producer = require('../../src/index')().producer;
+const { producer } = require('../../src/index')();
 
 let i = 0;
 let interval;
 
 interval = setInterval(() => {
   producer.produce(`queue-prefetch${i}`, { message: `start-${i}` }, { rpc: true })
-  .then(console.info);
+    .then(console.info);
 
   i += 1;
   if (i >= 100) {

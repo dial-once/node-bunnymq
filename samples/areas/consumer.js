@@ -1,5 +1,5 @@
 /* eslint no-console: off */
-const consumer = require('../../src/index')().consumer;
+const { consumer } = require('../../src/index')();
 
 /* eslint no-param-reassign: "off" */
 consumer.consume('circleArea', (msg) => {
