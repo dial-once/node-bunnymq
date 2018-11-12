@@ -1,16 +1,11 @@
 # node-bunnymq
 
-[![Circle CI](https://circleci.com/gh/dial-once/node-bunnymq/tree/develop.svg?style=shield)](https://circleci.com/gh/dial-once/node-bunnymq)
-[![npm](https://img.shields.io/npm/v/bunnymq.svg)]()
-[![npm](https://img.shields.io/npm/dt/bunnymq.svg)]()
 [![Sonar](http://proxy.dialonce.net/sonar/api/badges/gate?key=node-bunnymq)](http://sonar.dialonce.net/dashboard?id=node-bunnymq)
 [![Sonar](http://proxy.dialonce.net/sonar/api/badges/measure?key=node-bunnymq&metric=ncloc)](http://sonar.dialonce.net/dashboard?id=node-bunnymq)
 [![Sonar](http://proxy.dialonce.net/sonar/api/badges/measure?key=node-bunnymq&metric=coverage)](http://sonar.dialonce.net/dashboard?id=node-bunnymq)
 [![Sonar](http://proxy.dialonce.net/sonar/api/badges/measure?key=node-bunnymq&metric=code_smells)](http://proxy.dialonce.net/sonar/api/badges/measure?key=node-bunnymq&metric=coverage)
 [![Sonar](http://proxy.dialonce.net/sonar/api/badges/measure?key=node-bunnymq&metric=bugs)](http://sonar.dialonce.net/dashboard?id=node-bunnymq)
 [![Sonar](http://proxy.dialonce.net/sonar/api/badges/measure?key=node-bunnymq&metric=sqale_debt_ratio)](http://sonar.dialonce.net/dashboard?id=node-bunnymq)
-
-[![npm](https://nodei.co/npm/bunnymq.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/bunnymq/)
 
 ## Features
 - Subscriber (consumer)
