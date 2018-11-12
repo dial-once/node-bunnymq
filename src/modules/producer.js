@@ -188,7 +188,7 @@ class Producer {
         // undefined can't be serialized/buffered :p
         if (!message) message = null;
 
-        this._connection.config.transport.info('bmq:producer', `[${queue}] > `, msg);
+        this._connection.config.transport.info(bmqProducer, `[${queue}] > `, msg);
 
         return this.checkRpc(queue, parsers.out(message, settings), settings);
       })
@@ -197,7 +197,7 @@ class Producer {
           throw err;
         }
         // add timeout between retries because we don't want to overflow the CPU
-        this._connection.config.transport.error('bmq:producer', err);
+        this._connection.config.transport.error(bmqProducer, err);
         return utils.timeoutPromise(this._connection.config.timeout)
           .then(() => this.publish(queue, message, settings));
       });
